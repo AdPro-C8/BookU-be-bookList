@@ -18,7 +18,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -45,6 +45,7 @@ jobs:
           PG_HOST: jdbc:postgresql://localhost:5432/booku
           PG_USER: postgres
           PG_PASS: postgres
+          PORT: 8000
 
       - name: Store reports
         if: failure()
