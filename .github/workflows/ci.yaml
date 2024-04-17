@@ -9,6 +9,22 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-22.04
+    
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: booku
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,6 +41,10 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew test
+        env:
+          PG_HOST: jdbc:postgresql://localhost:5432/booku
+          PG_USER: postgres
+          PG_PASS: postgres
 
       - name: Store reports
         if: failure()
