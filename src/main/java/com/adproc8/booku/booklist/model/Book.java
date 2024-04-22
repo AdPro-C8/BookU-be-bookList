@@ -3,11 +3,11 @@ package com.adproc8.booku.booklist.model;
 import java.sql.Date;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,29 +19,29 @@ public class Book {
     @GeneratedValue(strategy=GenerationType.UUID)
     private UUID bookId;
 
-    @NotNull
-    private String title;      // to display
+    @Column(nullable = false)
+    private String title;
     
-    @NotNull
-    private String author;     // to display
+    @Column(nullable = false)
+    private String author;
 
-    @NotNull
+    @Column(nullable = false)
     private String publisher;
 
-    @NotNull
-    private int price;         // to display
+    @Column(nullable = false)
+    private int price;
 
-    @NotNull
+    @Column(nullable = false)
     private Date publishDate;
 
-    @NotNull
+    @Column(nullable = false)
     private String isbn;
 
-    @NotNull
+    @Column(nullable = false)
     private int pageCount;
 
-    @NotNull
-    private String photoUrl;   // to display
+    @Column(nullable = false)
+    private String photoUrl;
 
     @Override
     public String toString() {
