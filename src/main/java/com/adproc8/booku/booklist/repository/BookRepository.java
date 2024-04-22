@@ -9,11 +9,9 @@ import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.model.BookView;
 
 public interface BookRepository extends JpaRepository<Book, UUID> {
-    <S extends Book> S save(S book);
     List<BookView> findBy();
     List<BookView> findByTitle(String title);
     List<BookView> findByAuthor(String author);
     List<BookView> findByOrderByPublishDateAsc();
     List<BookView> findByOrderByPublishDateDesc();
-    void deleteById(UUID bookId);
 }
