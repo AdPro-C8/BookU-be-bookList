@@ -1,13 +1,11 @@
 package com.adproc8.booku.booklist.model;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.hibernate.annotations.Check;
+
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,11 +15,11 @@ public class Book {
 
     @Id
     @GeneratedValue(strategy=GenerationType.UUID)
-    private UUID bookId;
+    private UUID id;
 
     @Column(nullable = false)
     private String title;
-    
+
     @Column(nullable = false)
     private String author;
 
@@ -29,6 +27,7 @@ public class Book {
     private String publisher;
 
     @Column(nullable = false)
+    @Check(constraints = "price >= 0")
     private int price;
 
     @Column(nullable = false)
@@ -38,16 +37,9 @@ public class Book {
     private String isbn;
 
     @Column(nullable = false)
+    @Check(constraints = "page_count >= 0")
     private int pageCount;
 
     @Column(nullable = false)
     private String photoUrl;
-
-    @Override
-    public String toString() {
-        return String.format(
-            "Book[id=%s, title='%s', author='%s', publisher='%s', price='%d', publishDate='%s', isbn='%s', pageCount='%d', photoUrl='%s']",
-            bookId.toString(), title, author, publisher.toString(), price, publishDate.toString(), isbn, pageCount, photoUrl);
-    }
-
 }
