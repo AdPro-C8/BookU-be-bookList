@@ -13,39 +13,50 @@ import com.adproc8.booku.booklist.repository.BookRepository;
 @Service
 class BookServiceImpl implements BookService {
 
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
     @Autowired
     BookServiceImpl(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
     public Book save(Book book) throws RuntimeException {
-        return null;
+        return bookRepository.save(book);
     }
 
     public List<Book> saveAll(List<Book> books) {
-        return null;
+        return bookRepository.saveAll(books);
     }
 
     public List<Book> findAll() {
-        return null;
+        return bookRepository.findAll();
     }
 
     public List<Book> findByAuthor(String author) {
-        return null;
+        return bookRepository.findByAuthor(author);
     }
 
     public List<Book> findByTitle(String title) {
-        return null;
+        return bookRepository.findByTitle(title);
     }
 
     public List<Book> findByOrderByPublishDate(Direction direction) {
-        return null;
+        List<Book> books;
+
+        if (direction.isAscending()) {
+            books = bookRepository.findByOrderByPublishDateAsc();
+        } else {
+            books = bookRepository.findByOrderByPublishDateDesc();
+        }
+
+        return books;
     }
 
     public void deleteById(UUID bookId) {
+        bookRepository.deleteById(bookId);
     }
 
     public void deleteAll(List<Book> books) {
+        bookRepository.deleteAllInBatch(books);
     }
 }
