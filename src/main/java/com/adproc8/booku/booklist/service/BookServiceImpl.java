@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.adproc8.booku.booklist.model.Book;
@@ -32,24 +32,32 @@ class BookServiceImpl implements BookService {
         return bookRepository.findAll();
     }
 
+    public List<Book> findAll(Sort sort) {
+        return bookRepository.findAll(sort);
+    }
+
     public List<Book> findByAuthor(String author) {
         return bookRepository.findByAuthor(author);
+    }
+
+    public List<Book> findByAuthor(String author, Sort sort) {
+        return bookRepository.findByAuthor(author, sort);
     }
 
     public List<Book> findByTitle(String title) {
         return bookRepository.findByTitle(title);
     }
 
-    public List<Book> findByOrderByPublishDate(Direction direction) {
-        List<Book> books;
+    public List<Book> findByTitle(String title, Sort sort) {
+        return bookRepository.findByTitle(title, sort);
+    }
 
-        if (direction.isAscending()) {
-            books = bookRepository.findByOrderByPublishDateAsc();
-        } else {
-            books = bookRepository.findByOrderByPublishDateDesc();
-        }
+    public List<Book> findByTitleAndAuthor(String title, String author) {
+        return bookRepository.findByTitleAndAuthor(title, author);
+    }
 
-        return books;
+    public List<Book> findByTitleAndAuthor(String title, String author, Sort sort) {
+        return bookRepository.findByTitleAndAuthor(title, author, sort);
     }
 
     public void deleteById(UUID bookId) {
