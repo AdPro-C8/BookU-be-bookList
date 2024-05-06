@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.adproc8.booku.booklist.model.Book;
 
@@ -12,12 +13,8 @@ public interface BookService {
     List<Book> saveAll(List<Book> books);
     List<Book> findAll();
     List<Book> findAll(Sort sort);
-    List<Book> findByAuthor(String author);
-    List<Book> findByAuthor(String author, Sort sort);
-    List<Book> findByTitle(String title);
-    List<Book> findByTitle(String title, Sort sort);
-    List<Book> findByTitleAndAuthor(String author, String title);
-    List<Book> findByTitleAndAuthor(String author, String title, Sort sort);
+    List<Book> findAll(Specification<Book> spec);
+    List<Book> findAll(Specification<Book> spec, Sort sort);
     void deleteById(UUID bookId);
     void deleteAll(List<Book> books);
 }

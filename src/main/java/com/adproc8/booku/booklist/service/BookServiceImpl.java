@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.adproc8.booku.booklist.model.Book;
@@ -36,28 +37,12 @@ class BookServiceImpl implements BookService {
         return bookRepository.findAll(sort);
     }
 
-    public List<Book> findByAuthor(String author) {
-        return bookRepository.findByAuthor(author);
+    public List<Book> findAll(Specification<Book> spec) {
+        return null;
     }
 
-    public List<Book> findByAuthor(String author, Sort sort) {
-        return bookRepository.findByAuthor(author, sort);
-    }
-
-    public List<Book> findByTitle(String title) {
-        return bookRepository.findByTitle(title);
-    }
-
-    public List<Book> findByTitle(String title, Sort sort) {
-        return bookRepository.findByTitle(title, sort);
-    }
-
-    public List<Book> findByTitleAndAuthor(String title, String author) {
-        return bookRepository.findByTitleAndAuthor(title, author);
-    }
-
-    public List<Book> findByTitleAndAuthor(String title, String author, Sort sort) {
-        return bookRepository.findByTitleAndAuthor(title, author, sort);
+    public List<Book> findAll(Specification<Book> spec, Sort sort) {
+        return null;
     }
 
     public void deleteById(UUID bookId) {
