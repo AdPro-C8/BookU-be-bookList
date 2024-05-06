@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.repository.BookRepository;
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -184,250 +184,30 @@ class BookServiceImplTest {
     }
 
     @Test
-    void testFindByAuthor() {
-        String author = "Test Author";
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 1")
-            .author(author)
-            .build();
+    void testFindAllWithSpec() {
+        List<Book> books = Arrays.asList(new Book(), new Book());
+        Specification<Book> spec = (root, query, cb) -> cb.equal(root.get("title"), "Test Title");
 
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 2")
-            .author(author)
-            .build();
+        doReturn(books).when(bookRepository).findAll(spec);
 
-        List<Book> expectedBooks = Arrays.asList(book1, book2);
-        when(bookRepository.findByAuthor(author)).thenReturn(expectedBooks);
+        List<Book> returnedBooks = bookService.findAll(spec);
 
-        List<Book> actualBooks = bookService.findByAuthor(author);
-
-        assertEquals(expectedBooks, actualBooks);
-        verify(bookRepository, times(1)).findByAuthor(author);
+        assertEquals(books, returnedBooks);
+        verify(bookRepository, times(1)).findAll(spec);
     }
 
     @Test
-    void testFindByAuthor_NoBooks() {
-        String author = "Nonexistent Author";
-        when(bookRepository.findByAuthor(author)).thenReturn(new ArrayList<>());
-
-        List<Book> actualBooks = bookService.findByAuthor(author);
-
-        assertTrue(actualBooks.isEmpty());
-        verify(bookRepository, times(1)).findByAuthor(author);
-    }
-
-    @Test
-    void testFindByAuthor_NullAuthor() {
-        when(bookRepository.findByAuthor(null)).thenReturn(new ArrayList<>());
-
-        List<Book> actualBooks = bookService.findByAuthor(null);
-
-        assertTrue(actualBooks.isEmpty());
-        verify(bookRepository, times(1)).findByAuthor(null);
-    }
-
-    @Test
-    void testFindByAuthorWithSort() {
+    void testFindAllWithSpecAndSort() {
+        List<Book> books = Arrays.asList(new Book(), new Book());
         Sort sort = Sort.by(Sort.Direction.ASC, "title");
-        String author = "Test Author";
+        Specification<Book> spec = (root, query, cb) -> cb.equal(root.get("title"), "Test Title");
 
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 1")
-            .author(author)
-            .build();
+        doReturn(books).when(bookRepository).findAll(spec, sort);
 
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 2")
-            .author(author)
-            .build();
+        List<Book> returnedBooks = bookService.findAll(spec, sort);
 
-        List<Book> books = Arrays.asList(book1, book2);
-
-        when(bookRepository.findByAuthor(anyString(), any(Sort.class))).thenReturn(books);
-
-        List<Book> foundBooks = bookService.findByAuthor(author, sort);
-
-        assertEquals(books, foundBooks);
-        verify(bookRepository, times(1)).findByAuthor(author, sort);
-    }
-
-    @Test
-    void testFindByAuthorWithSort_ThrowsException() {
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-        String author = "Test Author";
-
-        doThrow(new RuntimeException()).when(bookRepository).findByAuthor(anyString(), any(Sort.class));
-
-        assertThrows(RuntimeException.class, () -> bookService.findByAuthor(author, sort));
-        verify(bookRepository, times(1)).findByAuthor(author, sort);
-    }
-
-    @Test
-    void testFindByTitle() {
-        String title = "Test Title";
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author("Test Author 1")
-            .build();
-
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author("Test Author 2")
-            .build();
-
-        List<Book> books = Arrays.asList(book1, book2);
-        when(bookRepository.findByTitle(anyString())).thenReturn(books);
-
-        List<Book> foundBooks = bookService.findByTitle(title);
-
-        assertEquals(books, foundBooks);
-        verify(bookRepository, times(1)).findByTitle(title);
-    }
-
-    @Test
-    void testFindByTitle_NoBooksFound() {
-        String title = "Nonexistent Title";
-        when(bookRepository.findByTitle(anyString())).thenReturn(new ArrayList<>());
-
-        List<Book> foundBooks = bookService.findByTitle(title);
-
-        assertTrue(foundBooks.isEmpty());
-        verify(bookRepository, times(1)).findByTitle(title);
-    }
-
-    @Test
-    void testFindByTitleWithSort() {
-        String title = "Test Title";
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author("Test Author 1")
-            .build();
-
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author("Test Author 2")
-            .build();
-
-        List<Book> expectedBooks = Arrays.asList(book1, book2);
-        when(bookRepository.findByTitle(anyString(), any(Sort.class))).thenReturn(expectedBooks);
-
-        List<Book> actualBooks = bookService.findByTitle(title, sort);
-
-        assertEquals(expectedBooks, actualBooks);
-        verify(bookRepository, times(1)).findByTitle(title, sort);
-    }
-
-    @Test
-    void testFindByTitleWithSort_NoBooksFound() {
-        String title = "Nonexistent Title";
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-        when(bookRepository.findByTitle(anyString(), any(Sort.class))).thenReturn(new ArrayList<>());
-
-        List<Book> actualBooks = bookService.findByTitle(title, sort);
-
-        assertTrue(actualBooks.isEmpty());
-        verify(bookRepository, times(1)).findByTitle(title, sort);
-    }
-
-    @Test
-    void testFindByTitleWithSort_ThrowsException() {
-        String title = "Test Title";
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-        doThrow(new RuntimeException()).when(bookRepository).findByTitle(anyString(), any(Sort.class));
-
-        assertThrows(RuntimeException.class, () -> bookService.findByTitle(title, sort));
-        verify(bookRepository, times(1)).findByTitle(title, sort);
-    }
-
-    @Test
-    void testFindByTitleAndAuthor() {
-        String title = "Test Title";
-        String author = "Test Author";
-
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author(author)
-            .build();
-
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author(author)
-            .build();
-
-        List<Book> books = Arrays.asList(book1, book2);
-
-        when(bookRepository.findByTitleAndAuthor(title, author)).thenReturn(books);
-
-        List<Book> foundBooks = bookService.findByTitleAndAuthor(title, author);
-
-        assertEquals(books, foundBooks);
-        verify(bookRepository, times(1)).findByTitleAndAuthor(title, author);
-    }
-
-    @Test
-    void testFindByTitleAndAuthor_NoBooksFound() {
-        String title = "Nonexistent Title";
-        String author = "Nonexistent Author";
-
-        when(bookRepository.findByTitleAndAuthor(title, author)).thenReturn(new ArrayList<>());
-
-        List<Book> foundBooks = bookService.findByTitleAndAuthor(title, author);
-
-        assertTrue(foundBooks.isEmpty());
-        verify(bookRepository, times(1)).findByTitleAndAuthor(title, author);
-    }
-
-    @Test
-    void testFindByTitleAndAuthorWithSort() {
-        String title = "Test Title";
-        String author = "Test Author";
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author(author)
-            .build();
-
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title(title)
-            .author(author)
-            .build();
-
-        List<Book> books = Arrays.asList(book1, book2);
-
-        when(bookRepository.findByTitleAndAuthor(title, author, sort)).thenReturn(books);
-
-        List<Book> foundBooks = bookService.findByTitleAndAuthor(title, author, sort);
-
-        assertEquals(books, foundBooks);
-        verify(bookRepository, times(1)).findByTitleAndAuthor(title, author, sort);
-    }
-
-    @Test
-    void testFindByTitleAndAuthorWithSort_EmptyResult() {
-        String title = "Nonexistent Title";
-        String author = "Nonexistent Author";
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-
-        when(bookRepository.findByTitleAndAuthor(title, author, sort)).thenReturn(new ArrayList<>());
-
-        List<Book> foundBooks = bookService.findByTitleAndAuthor(title, author, sort);
-
-        assertTrue(foundBooks.isEmpty());
-        verify(bookRepository, times(1)).findByTitleAndAuthor(title, author, sort);
+        assertEquals(books, returnedBooks);
+        verify(bookRepository, times(1)).findAll(spec, sort);
     }
 
     @Test
