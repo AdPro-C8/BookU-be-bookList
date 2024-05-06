@@ -38,11 +38,11 @@ class BookServiceImpl implements BookService {
     }
 
     public List<Book> findAll(Specification<Book> spec) {
-        return null;
+        return bookRepository.findAll(spec);
     }
 
     public List<Book> findAll(Specification<Book> spec, Sort sort) {
-        return null;
+        return bookRepository.findAll(spec, sort);
     }
 
     public void deleteById(UUID bookId) {
