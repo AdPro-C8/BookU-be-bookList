@@ -1,12 +1,14 @@
 package com.adproc8.booku.booklist.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -115,5 +117,14 @@ class BookControllerTest {
         BookResponseDto responseDto = bookController.postBook(bookDto);
 
         assertEquals(newBook.getId(), responseDto.getBookId());
+    }
+
+    @Test
+    void testDeleteBook() {
+        UUID bookId = UUID.randomUUID();
+
+        bookController.deleteBook(bookId);
+
+        verify(bookService, times(1)).deleteById(bookId);
     }
 }
