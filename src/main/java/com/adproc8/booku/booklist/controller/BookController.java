@@ -32,7 +32,7 @@ class BookController {
     @GetMapping("")
     List<Book> getBooks(
         @RequestParam Optional<String> author, @RequestParam Optional<String> title,
-        @RequestParam Optional<String> sortBy, @RequestParam Optional<String> sortOrder)
+        @RequestParam Optional<String> sortBy, @RequestParam Optional<String> orderBy)
     {
         Specification<Book> bookSpec = Specification.where(null);
 
@@ -45,8 +45,8 @@ class BookController {
 
         List<Book> bookList;
 
-        if (sortBy.isPresent() && sortOrder.isPresent()) {
-            Sort sort = Sort.by(Direction.fromString(sortOrder.get()), sortBy.get());
+        if (sortBy.isPresent() && orderBy.isPresent()) {
+            Sort sort = Sort.by(Direction.fromString(orderBy.get()), sortBy.get());
             bookList = bookService.findAll(bookSpec, sort);
         } else {
             bookList = bookService.findAll(bookSpec);
