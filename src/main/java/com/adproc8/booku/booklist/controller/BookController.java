@@ -55,6 +55,11 @@ class BookController {
         return bookList;
     }
 
+    @GetMapping("/{bookId}")
+    Book getBook(@PathVariable UUID bookId) {
+        return bookService.findById(bookId).orElseThrow();
+    }
+
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     BookResponseDto postBook(@RequestBody BookRequestDto bookDto) {
