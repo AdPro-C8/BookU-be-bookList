@@ -2,13 +2,17 @@ package com.adproc8.booku.booklist.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import com.adproc8.booku.booklist.dto.BookRequestDto;
+import com.adproc8.booku.booklist.dto.BookResponseDto;
 import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.service.BookService;
 
@@ -25,7 +29,7 @@ class BookController {
         this.bookService = bookService;
     }
 
-    @GetMapping
+    @GetMapping("")
     List<Book> getBooks(
         @RequestParam Optional<String> author, @RequestParam Optional<String> title,
         @RequestParam Optional<String> sortBy, @RequestParam Optional<String> sortOrder)
@@ -49,5 +53,25 @@ class BookController {
         }
 
         return bookList;
+    }
+
+    @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
+    BookResponseDto postBook(@RequestBody BookRequestDto bookDto) {
+        Book newBook = Book.builder()
+            .title(bookDto.getTitle())
+            .author(bookDto.getAuthor())
+            .publisher(bookDto.getPublisher())
+            .price(bookDto.getPrice())
+            .publishDate(bookDto.getPublishDate())
+            .isbn(bookDto.getIsbn())
+            .pageCount(bookDto.getPageCount())
+            .photoUrl(bookDto.getPhotoUrl())
+            .build();
+
+        newBook = bookService.save(newBook);
+        UUID bookId = newBook.getId();
+
+        return new BookResponseDto(bookId);
     }
 }
