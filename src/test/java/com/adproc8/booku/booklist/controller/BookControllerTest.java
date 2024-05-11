@@ -1,6 +1,7 @@
 package com.adproc8.booku.booklist.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -88,6 +89,27 @@ class BookControllerTest {
         List<Book> books = bookController.getBooks(Optional.of("Author 1"), Optional.of("Title 1"), Optional.of("title"), Optional.of("asc"));
 
         assertEquals(dummyBooks, books);
+    }
+
+    @Test
+    void testGetBook() {
+        UUID bookId = UUID.randomUUID();
+        Book book = Book.builder().id(bookId).build();
+
+        when(bookService.findById(bookId)).thenReturn(Optional.of(book));
+
+        Book returnedBook = bookController.getBook(bookId);
+
+        assertEquals(book, returnedBook);
+    }
+
+    @Test
+    void testGetBook_NonExistingBook() {
+        UUID bookId = UUID.randomUUID();
+
+        when(bookService.findById(bookId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> bookController.getBook(bookId));
     }
 
     @Test
