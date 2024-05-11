@@ -31,7 +31,7 @@ class BookServiceImpl implements BookService {
     }
 
     public Optional<Book> findById(UUID bookId) {
-        return null;
+        return bookRepository.findById(bookId);
     }
 
     public List<Book> findAll() {
