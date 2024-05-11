@@ -3,6 +3,7 @@ package com.adproc8.booku.booklist.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +17,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.adproc8.booku.booklist.dto.BookRequestDto;
+import com.adproc8.booku.booklist.dto.BookResponseDto;
 import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.service.BookService;
 
 @ExtendWith(MockitoExtension.class)
 class BookControllerTest {
+
+    @Mock
+    private BookRequestDto bookDto;
 
     @Mock
     private BookService bookService;
@@ -80,5 +86,34 @@ class BookControllerTest {
         List<Book> books = bookController.getBooks(Optional.of("Author 1"), Optional.of("Title 1"), Optional.of("title"), Optional.of("asc"));
 
         assertEquals(dummyBooks, books);
+    }
+
+    @Test
+    void testPostBook() {
+        Book newBook = Book.builder()
+            .title("Title")
+            .author("Author")
+            .publisher("Publisher")
+            .price(100)
+            .publishDate(Date.valueOf("2022-01-01"))
+            .isbn("1234567890")
+            .pageCount(200)
+            .photoUrl("http://example.com/photo.jpg")
+            .build();
+
+        when(bookService.save(any(Book.class))).thenReturn(newBook);
+
+        when(bookDto.getTitle()).thenReturn("Title");
+        when(bookDto.getAuthor()).thenReturn("Author");
+        when(bookDto.getPublisher()).thenReturn("Publisher");
+        when(bookDto.getPrice()).thenReturn(100);
+        when(bookDto.getPublishDate()).thenReturn(Date.valueOf("2022-01-01"));
+        when(bookDto.getIsbn()).thenReturn("1234567890");
+        when(bookDto.getPageCount()).thenReturn(200);
+        when(bookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
+
+        BookResponseDto responseDto = bookController.postBook(bookDto);
+
+        assertEquals(newBook.getId(), responseDto.getBookId());
     }
 }
