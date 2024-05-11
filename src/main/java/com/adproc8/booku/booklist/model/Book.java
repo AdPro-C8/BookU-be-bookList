@@ -48,6 +48,9 @@ public class Book {
     private String photoUrl;
 
     @Column(nullable = false)
+    private String category;
+
+    @Column(nullable = false)
     @Check(constraints = "download_count >= 0")
     private int downloadCount;
 }

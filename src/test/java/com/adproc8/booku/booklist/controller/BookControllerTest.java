@@ -101,6 +101,7 @@ class BookControllerTest {
             .isbn("1234567890")
             .pageCount(200)
             .photoUrl("http://example.com/photo.jpg")
+            .category("Category")
             .build();
 
         when(bookService.save(any(Book.class))).thenReturn(newBook);
@@ -113,6 +114,7 @@ class BookControllerTest {
         when(bookDto.getIsbn()).thenReturn("1234567890");
         when(bookDto.getPageCount()).thenReturn(200);
         when(bookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
+        when(bookDto.getCategory()).thenReturn("Category");
 
         BookResponseDto responseDto = bookController.postBook(bookDto);
 
