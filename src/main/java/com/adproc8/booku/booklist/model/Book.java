@@ -1,6 +1,6 @@
 package com.adproc8.booku.booklist.model;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.UUID;
 
 import org.hibernate.annotations.Check;
