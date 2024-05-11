@@ -74,4 +74,10 @@ class BookController {
 
         return new BookResponseDto(bookId);
     }
+
+    @DeleteMapping("/{bookId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteBook(@PathVariable UUID bookId) {
+        bookService.deleteById(bookId);
+    }
 }
