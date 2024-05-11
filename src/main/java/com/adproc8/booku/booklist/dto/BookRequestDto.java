@@ -14,4 +14,5 @@ public class BookRequestDto {
     private String isbn;
     private int pageCount;
     private String photoUrl;
+    private String category;
 }

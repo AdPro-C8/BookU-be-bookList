@@ -67,6 +67,7 @@ class BookController {
             .isbn(bookDto.getIsbn())
             .pageCount(bookDto.getPageCount())
             .photoUrl(bookDto.getPhotoUrl())
+            .category(bookDto.getCategory())
             .build();
 
         newBook = bookService.save(newBook);
