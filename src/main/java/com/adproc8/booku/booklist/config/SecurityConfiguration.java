@@ -12,6 +12,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.adproc8.booku.booklist.enums.UserRole;
+
 import java.util.List;
 
 @Configuration
@@ -34,11 +36,11 @@ class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, BOOK_PATTERN)
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, BOOK_PATTERN)
-                        .hasRole("ADMIN")
+                        .hasRole(UserRole.ADMIN.toString())
                         .requestMatchers(HttpMethod.DELETE, BOOK_PATTERN)
-                        .hasRole("ADMIN")
+                        .hasRole(UserRole.ADMIN.toString())
                         .requestMatchers(HttpMethod.PATCH, BOOK_PATTERN)
-                        .hasRole("ADMIN")
+                        .hasRole(UserRole.ADMIN.toString())
                         .anyRequest()
                         .authenticated()
                 )
