@@ -1,6 +1,7 @@
 package com.adproc8.booku.booklist.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,10 @@ class BookServiceImpl implements BookService {
 
     public List<Book> saveAll(List<Book> books) {
         return bookRepository.saveAll(books);
+    }
+
+    public Optional<Book> findById(UUID bookId) {
+        return null;
     }
 
     public List<Book> findAll() {
