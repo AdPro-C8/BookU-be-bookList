@@ -46,6 +46,8 @@ jobs:
           PG_USER: postgres
           PG_PASS: postgres
           PORT: 8000
+          JWT_SECRET: IniAdalahSebuahSecretYangSangatAmatRahasiaSuiseinoGotokuArawaretaSutanoGensekiAidoruVtubernoHoshimachiSuiseidesuSuichanwaKYOUUMOKAWAIIIIIIPlisKaliIniBisaAsTAGAAAASHAJSAJSJHAJSDCJDJCHABisaDongPlisssDemiAllahYesusBuddhaBhagavvatGittaTriHitaKaranaSwastiastuNamoBudayaBroFrnggabisabisatfAKHIRNYAAABISAAAAOWKOKWOKWOKWOWKOWKOKokwoKWOKowkowKWOKWOkwoWKokwoKowkoKWOKowkOWKOkOWKOkwoKWOKokwoK
+          AUTH_HOST: http://localhost:9000
 
       - name: Store reports
         if: failure()
