@@ -15,6 +15,7 @@ import com.adproc8.booku.booklist.repository.BookRepository;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,6 +106,46 @@ class BookServiceImplTest {
 
         assertThrows(RuntimeException.class, () -> bookService.saveAll(booksToSave));
         verify(bookRepository, times(1)).saveAll(booksToSave);
+    }
+
+    @Test
+    void testFindById_Exists() {
+        UUID bookId = UUID.randomUUID();
+        Book book = Book.builder()
+            .id(bookId)
+            .title("Test Title")
+            .author("Test Author")
+            .build();
+
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        Optional<Book> foundBook = bookService.findById(bookId);
+
+        assertTrue(foundBook.isPresent());
+        assertEquals(book, foundBook.get());
+        verify(bookRepository, times(1)).findById(bookId);
+    }
+
+    @Test
+    void testFindById_NotExists() {
+        UUID bookId = UUID.randomUUID();
+
+        when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+
+        Optional<Book> foundBook = bookService.findById(bookId);
+
+        assertTrue(foundBook.isEmpty());
+        verify(bookRepository, times(1)).findById(bookId);
+    }
+
+    @Test
+    void testFindById_ThrowsException() {
+        UUID bookId = UUID.randomUUID();
+
+        when(bookRepository.findById(bookId)).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> bookService.findById(bookId));
+        verify(bookRepository, times(1)).findById(bookId);
     }
 
     @Test
