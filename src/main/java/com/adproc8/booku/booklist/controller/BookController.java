@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.adproc8.booku.booklist.dto.BookRequestDto;
@@ -56,8 +57,14 @@ class BookController {
     }
 
     @GetMapping("/{bookId}")
-    Book getBook(@PathVariable UUID bookId) {
-        return bookService.findById(bookId).orElseThrow();
+    ResponseEntity<Book> getBook(@PathVariable UUID bookId) {
+        Optional<Book> book = bookService.findById(bookId);
+
+        if (book.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(book.get());
     }
 
     @PostMapping("")

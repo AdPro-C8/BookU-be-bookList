@@ -1,7 +1,6 @@
 package com.adproc8.booku.booklist.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -19,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.adproc8.booku.booklist.dto.BookRequestDto;
 import com.adproc8.booku.booklist.dto.BookResponseDto;
@@ -98,9 +99,10 @@ class BookControllerTest {
 
         when(bookService.findById(bookId)).thenReturn(Optional.of(book));
 
-        Book returnedBook = bookController.getBook(bookId);
+        ResponseEntity<Book> responseEntity = bookController.getBook(bookId);
 
-        assertEquals(book, returnedBook);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(book, responseEntity.getBody());
     }
 
     @Test
@@ -109,7 +111,9 @@ class BookControllerTest {
 
         when(bookService.findById(bookId)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> bookController.getBook(bookId));
+        ResponseEntity<Book> responseEntity = bookController.getBook(bookId);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 
     @Test
