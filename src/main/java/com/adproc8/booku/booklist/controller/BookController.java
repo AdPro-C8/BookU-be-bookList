@@ -13,8 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.adproc8.booku.booklist.dto.BookRequestDto;
-import com.adproc8.booku.booklist.dto.BookResponseDto;
+import com.adproc8.booku.booklist.dto.PatchBookRequestDto;
+import com.adproc8.booku.booklist.dto.PostBookRequestDto;
+import com.adproc8.booku.booklist.dto.PostBookResponseDto;
 import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.service.BookService;
 
@@ -32,6 +33,7 @@ class BookController {
     }
 
     @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
     List<Book> getBooks(
         @RequestParam Optional<String> author, @RequestParam Optional<String> title,
         @RequestParam Optional<String> sortBy, @RequestParam Optional<String> orderBy)
@@ -69,7 +71,7 @@ class BookController {
     }
 
     @PostMapping("")
-    ResponseEntity<BookResponseDto> postBook(@RequestBody BookRequestDto bookDto) {
+    ResponseEntity<PostBookResponseDto> postBook(@RequestBody PostBookRequestDto bookDto) {
         Book newBook = Book.builder()
             .title(bookDto.getTitle())
             .author(bookDto.getAuthor())
@@ -86,16 +88,49 @@ class BookController {
             newBook = bookService.save(newBook);
         } catch (DataIntegrityViolationException exception) {
             return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
+        } catch (RuntimeException exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
         }
 
         UUID bookId = newBook.getId();
 
         return ResponseEntity.status(HttpStatus.CREATED.value())
-                .body(new BookResponseDto(bookId));
+                .body(new PostBookResponseDto(bookId));
+    }
+
+    @PatchMapping("/{bookId}")
+    ResponseEntity<Void> patchBook(
+        @PathVariable UUID bookId,
+        @RequestBody PatchBookRequestDto bookDto)
+    {
+        Optional<Book> book = bookService.findById(bookId);
+
+        if (book.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Book someBook = book.get();
+
+        Optional.ofNullable(bookDto.getPublisher())
+                .ifPresent(publisher -> someBook.setPublisher(publisher));
+        Optional.ofNullable(bookDto.getPublishDate())
+                .ifPresent(publishDate -> someBook.setPublishDate(publishDate));
+        Optional.ofNullable(bookDto.getIsbn())
+                .ifPresent(isbn -> someBook.setIsbn(isbn));
+        Optional.ofNullable(bookDto.getPageCount())
+                .ifPresent(pageCount -> someBook.setPageCount(pageCount));
+        Optional.ofNullable(bookDto.getPhotoUrl())
+                .ifPresent(photoUrl -> someBook.setPhotoUrl(photoUrl));
+        Optional.ofNullable(bookDto.getCategory())
+                .ifPresent(category -> someBook.setCategory(category));
+
+        bookService.save(someBook);
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{bookId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     void deleteBook(@PathVariable UUID bookId) {
         bookService.deleteById(bookId);
     }

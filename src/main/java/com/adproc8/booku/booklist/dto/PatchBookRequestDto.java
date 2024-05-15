@@ -5,9 +5,7 @@ import java.sql.Date;
 import lombok.Getter;
 
 @Getter
-public class BookRequestDto {
-    private String title;
-    private String author;
+public class PatchBookRequestDto {
     private String publisher;
     private int price;
     private Date publishDate;
