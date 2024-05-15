@@ -13,12 +13,6 @@ import com.adproc8.booku.booklist.model.Book;
 public interface BookRepository extends JpaRepository<Book, UUID>, JpaSpecificationExecutor<Book> {
     List<Book> findAll(Specification<Book> spec);
     List<Book> findAll(Specification<Book> spec, Sort sort);
-    List<Book> findByTitle(String title);
-    List<Book> findByTitle(String title, Sort sort);
-    List<Book> findByAuthor(String author);
-    List<Book> findByAuthor(String author, Sort sort);
-    List<Book> findByTitleAndAuthor(String title, String author);
-    List<Book> findByTitleAndAuthor(String title, String author, Sort sort);
 
     class BookSpecifications {
         public static Specification<Book> authorIs(String author) {
