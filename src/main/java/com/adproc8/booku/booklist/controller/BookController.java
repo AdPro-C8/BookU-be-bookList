@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,8 +69,7 @@ class BookController {
     }
 
     @PostMapping("")
-    @ResponseStatus(HttpStatus.CREATED)
-    BookResponseDto postBook(@RequestBody BookRequestDto bookDto) {
+    ResponseEntity<BookResponseDto> postBook(@RequestBody BookRequestDto bookDto) {
         Book newBook = Book.builder()
             .title(bookDto.getTitle())
             .author(bookDto.getAuthor())
@@ -82,10 +82,16 @@ class BookController {
             .category(bookDto.getCategory())
             .build();
 
-        newBook = bookService.save(newBook);
+        try {
+            newBook = bookService.save(newBook);
+        } catch (DataIntegrityViolationException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
+        }
+
         UUID bookId = newBook.getId();
 
-        return new BookResponseDto(bookId);
+        return ResponseEntity.status(HttpStatus.CREATED.value())
+                .body(new BookResponseDto(bookId));
     }
 
     @DeleteMapping("/{bookId}")

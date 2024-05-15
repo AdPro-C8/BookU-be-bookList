@@ -26,7 +26,7 @@ class BookServiceImpl implements BookService {
         return bookRepository.save(book);
     }
 
-    public List<Book> saveAll(List<Book> books) {
+    public List<Book> saveAll(List<Book> books) throws RuntimeException {
         return bookRepository.saveAll(books);
     }
 

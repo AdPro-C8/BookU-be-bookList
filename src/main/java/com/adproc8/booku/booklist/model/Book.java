@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(
+    uniqueConstraints = @UniqueConstraint(columnNames = {"title", "author"})
+)
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class Book {
