@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -117,8 +118,9 @@ class BookControllerTest {
     }
 
     @Test
-    void testPostBook() {
+    void testPostBook_Success() {
         Book newBook = Book.builder()
+            .id(UUID.randomUUID())
             .title("Title")
             .author("Author")
             .publisher("Publisher")
@@ -130,8 +132,6 @@ class BookControllerTest {
             .category("Category")
             .build();
 
-        when(bookService.save(any(Book.class))).thenReturn(newBook);
-
         when(bookDto.getTitle()).thenReturn("Title");
         when(bookDto.getAuthor()).thenReturn("Author");
         when(bookDto.getPublisher()).thenReturn("Publisher");
@@ -142,9 +142,31 @@ class BookControllerTest {
         when(bookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
         when(bookDto.getCategory()).thenReturn("Category");
 
-        BookResponseDto responseDto = bookController.postBook(bookDto);
+        when(bookService.save(any(Book.class))).thenReturn(newBook);
 
-        assertEquals(newBook.getId(), responseDto.getBookId());
+        ResponseEntity<BookResponseDto> responseEntity = bookController.postBook(bookDto);
+
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        assertEquals(newBook.getId(), responseEntity.getBody().getBookId());
+    }
+
+    @Test
+    void testPostBook_DataIntegrityViolation() {
+        when(bookDto.getTitle()).thenReturn("Title");
+        when(bookDto.getAuthor()).thenReturn("Author");
+        when(bookDto.getPublisher()).thenReturn("Publisher");
+        when(bookDto.getPrice()).thenReturn(100);
+        when(bookDto.getPublishDate()).thenReturn(Date.valueOf("2022-01-01"));
+        when(bookDto.getIsbn()).thenReturn("1234567890");
+        when(bookDto.getPageCount()).thenReturn(200);
+        when(bookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
+        when(bookDto.getCategory()).thenReturn("Category");
+
+        when(bookService.save(any(Book.class))).thenThrow(DataIntegrityViolationException.class);
+
+        ResponseEntity<BookResponseDto> responseEntity = bookController.postBook(bookDto);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
     }
 
     @Test
