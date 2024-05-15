@@ -22,8 +22,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.adproc8.booku.booklist.dto.BookRequestDto;
-import com.adproc8.booku.booklist.dto.BookResponseDto;
+import com.adproc8.booku.booklist.dto.PatchBookRequestDto;
+import com.adproc8.booku.booklist.dto.PostBookRequestDto;
+import com.adproc8.booku.booklist.dto.PostBookResponseDto;
 import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.service.BookService;
 
@@ -31,7 +32,10 @@ import com.adproc8.booku.booklist.service.BookService;
 class BookControllerTest {
 
     @Mock
-    private BookRequestDto bookDto;
+    private PatchBookRequestDto patchBookDto;
+
+    @Mock
+    private PostBookRequestDto bookDto;
 
     @Mock
     private BookService bookService;
@@ -144,7 +148,7 @@ class BookControllerTest {
 
         when(bookService.save(any(Book.class))).thenReturn(newBook);
 
-        ResponseEntity<BookResponseDto> responseEntity = bookController.postBook(bookDto);
+        ResponseEntity<PostBookResponseDto> responseEntity = bookController.postBook(bookDto);
 
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
         assertEquals(newBook.getId(), responseEntity.getBody().getBookId());
@@ -164,9 +168,60 @@ class BookControllerTest {
 
         when(bookService.save(any(Book.class))).thenThrow(DataIntegrityViolationException.class);
 
-        ResponseEntity<BookResponseDto> responseEntity = bookController.postBook(bookDto);
+        ResponseEntity<PostBookResponseDto> responseEntity = bookController.postBook(bookDto);
 
         assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+    }
+
+    @Test
+    void testPostBook_ThrowsException() {
+        when(bookDto.getTitle()).thenReturn("Title");
+        when(bookDto.getAuthor()).thenReturn("Author");
+        when(bookDto.getPublisher()).thenReturn("Publisher");
+        when(bookDto.getPrice()).thenReturn(100);
+        when(bookDto.getPublishDate()).thenReturn(Date.valueOf("2022-01-01"));
+        when(bookDto.getIsbn()).thenReturn("1234567890");
+        when(bookDto.getPageCount()).thenReturn(200);
+        when(bookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
+        when(bookDto.getCategory()).thenReturn("Category");
+
+        when(bookService.save(any(Book.class))).thenThrow(RuntimeException.class);
+
+        ResponseEntity<PostBookResponseDto> responseEntity = bookController.postBook(bookDto);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+    }
+
+    @Test
+    void patchBook_Success() {
+        UUID bookId = UUID.randomUUID();
+        Book book = Book.builder().id(bookId).build();
+
+        when(bookService.findById(bookId)).thenReturn(Optional.of(book));
+
+        when(patchBookDto.getPublisher()).thenReturn("New Publisher");
+        when(patchBookDto.getPublishDate()).thenReturn(Date.valueOf("2022-01-01"));
+        when(patchBookDto.getIsbn()).thenReturn("1234567890");
+        when(patchBookDto.getPageCount()).thenReturn(200);
+        when(patchBookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
+        when(patchBookDto.getCategory()).thenReturn("New Category");
+
+        ResponseEntity<Void> responseEntity = bookController.patchBook(bookId, patchBookDto);
+
+        verify(bookService, times(1)).save(any(Book.class));
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    @Test
+    void patchBook_NotFound() {
+        UUID bookId = UUID.randomUUID();
+
+        when(bookService.findById(bookId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Void> responseEntity = bookController.patchBook(bookId, patchBookDto);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 
     @Test
