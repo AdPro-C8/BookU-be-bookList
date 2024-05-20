@@ -150,7 +150,7 @@ class BookControllerTest {
 
         ResponseEntity<PostBookResponseDto> responseEntity = bookController.postBook(bookDto);
 
-        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(newBook.getId(), responseEntity.getBody().getBookId());
     }
 

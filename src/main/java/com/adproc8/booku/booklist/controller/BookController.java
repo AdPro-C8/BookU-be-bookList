@@ -94,7 +94,7 @@ class BookController {
 
         UUID bookId = newBook.getId();
 
-        return ResponseEntity.status(HttpStatus.CREATED.value())
+        return ResponseEntity.status(HttpStatus.OK.value())
                 .body(new PostBookResponseDto(bookId));
     }
 
