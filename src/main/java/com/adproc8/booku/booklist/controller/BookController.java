@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
@@ -25,6 +27,8 @@ import static com.adproc8.booku.booklist.repository.BookRepository.BookSpecifica
 @RestController
 @RequestMapping("/book")
 class BookController {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     private final BookService bookService;
 
@@ -78,6 +82,7 @@ class BookController {
         try {
             books = bookService.findAllById(dto.getBookIds());
         } catch (IllegalArgumentException exception) {
+            logger.error(exception.getMessage(), exception);
             return ResponseEntity.notFound().build();
         }
 
@@ -101,8 +106,10 @@ class BookController {
         try {
             newBook = bookService.save(newBook);
         } catch (DataIntegrityViolationException exception) {
+            logger.error(exception.getMessage(), exception);
             return ResponseEntity.status(HttpStatus.CONFLICT.value()).build();
         } catch (RuntimeException exception) {
+            logger.error(exception.getMessage(), exception);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
         }
 
