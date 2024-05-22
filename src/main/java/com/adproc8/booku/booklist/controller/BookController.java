@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.adproc8.booku.booklist.dto.GetBooksByIdRequestDto;
 import com.adproc8.booku.booklist.dto.PatchBookRequestDto;
 import com.adproc8.booku.booklist.dto.PostBookRequestDto;
 import com.adproc8.booku.booklist.dto.PostBookResponseDto;
@@ -34,7 +35,7 @@ class BookController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    List<Book> getBooks(
+    List<Book> getAllBooks(
         @RequestParam Optional<String> author, @RequestParam Optional<String> title,
         @RequestParam Optional<String> sortBy, @RequestParam Optional<String> orderBy)
     {
@@ -60,7 +61,7 @@ class BookController {
     }
 
     @GetMapping("/{bookId}")
-    ResponseEntity<Book> getBook(@PathVariable UUID bookId) {
+    ResponseEntity<Book> getBookById(@PathVariable UUID bookId) {
         Optional<Book> book = bookService.findById(bookId);
 
         if (book.isEmpty()) {
@@ -70,8 +71,21 @@ class BookController {
         return ResponseEntity.ok(book.get());
     }
 
+    @PostMapping("/get-batch")
+    ResponseEntity<List<Book>> getMultipleBooksById(@RequestBody GetBooksByIdRequestDto dto) {
+        List<Book> books;
+
+        try {
+            books = bookService.findAllById(dto.getBookIds());
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(books);
+    }
+
     @PostMapping("")
-    ResponseEntity<PostBookResponseDto> postBook(@RequestBody PostBookRequestDto bookDto) {
+    ResponseEntity<PostBookResponseDto> createBook(@RequestBody PostBookRequestDto bookDto) {
         Book newBook = Book.builder()
             .title(bookDto.getTitle())
             .author(bookDto.getAuthor())
@@ -99,7 +113,7 @@ class BookController {
     }
 
     @PatchMapping("/{bookId}")
-    ResponseEntity<Void> patchBook(
+    ResponseEntity<Void> updateBookById(
         @PathVariable UUID bookId,
         @RequestBody PatchBookRequestDto bookDto)
     {
@@ -131,7 +145,7 @@ class BookController {
 
     @DeleteMapping("/{bookId}")
     @ResponseStatus(HttpStatus.OK)
-    void deleteBook(@PathVariable UUID bookId) {
+    void deleteBookById(@PathVariable UUID bookId) {
         bookService.deleteById(bookId);
     }
 }
