@@ -50,6 +50,10 @@ class BookServiceImpl implements BookService {
         return bookRepository.findAll(spec, sort);
     }
 
+    public List<Book> findAllById(Iterable<UUID> ids) {
+        return bookRepository.findAllById(ids);
+    }
+
     public void deleteById(UUID bookId) {
         bookRepository.deleteById(bookId);
     }

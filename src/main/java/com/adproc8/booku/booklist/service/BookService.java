@@ -17,6 +17,7 @@ public interface BookService {
     List<Book> findAll(Sort sort);
     List<Book> findAll(Specification<Book> spec);
     List<Book> findAll(Specification<Book> spec, Sort sort);
+    List<Book> findAllById(Iterable<UUID> ids);
     void deleteById(UUID bookId);
     void deleteAll(List<Book> books);
 }
