@@ -230,6 +230,16 @@ class BookControllerTest {
     }
 
     @Test
+    void testGetMultipleBooksById_InvalidDto() {
+        when(getBooksByIdDto.getBookIds()).thenThrow(NullPointerException.class);
+
+        ResponseEntity<List<Book>> responseEntity = bookController
+                .getMultipleBooksById(getBooksByIdDto);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
+
+    @Test
     void testUpdateBookById_Success() {
         UUID bookId = UUID.randomUUID();
         Book book = Book.builder().id(bookId).build();
