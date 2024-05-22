@@ -14,13 +14,12 @@ import com.adproc8.booku.booklist.repository.BookRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -249,6 +248,51 @@ class BookServiceImplTest {
 
         assertEquals(books, returnedBooks);
         verify(bookRepository, times(1)).findAll(spec, sort);
+    }
+
+    @Test
+    void testFindAllById() {
+        UUID bookId1 = UUID.randomUUID();
+        UUID bookId2 = UUID.randomUUID();
+
+        List<UUID> bookIds = List.of(bookId1, bookId2);
+
+        Book book1 = Book.builder()
+            .id(bookId1)
+            .title("Test Title 1")
+            .author("Test Author 1")
+            .build();
+
+        Book book2 = Book.builder()
+            .id(bookId2)
+            .title("Test Title 2")
+            .author("Test Author 2")
+            .build();
+
+        List<Book> books = List.of(book1, book2);
+        when(bookRepository.findAllById(bookIds)).thenReturn(books);
+
+        List<Book> returnedBooks = bookService.findAllById(bookIds);
+
+        assertNotNull(returnedBooks);
+
+        Iterator<Book> returnedBooksIterator = returnedBooks.iterator();
+
+        assertTrue(returnedBooksIterator.hasNext());
+        assertEquals(book1, returnedBooksIterator.next());
+        assertEquals(book2, returnedBooksIterator.next());
+        assertFalse(returnedBooksIterator.hasNext());
+    }
+
+    @Test
+    void testFindAllById_ThrowsException() {
+        List<UUID> bookIds = new ArrayList<>();
+        bookIds.add(UUID.randomUUID());
+        bookIds.add(null);
+
+        when(bookRepository.findAllById(bookIds)).thenThrow(IllegalArgumentException.class);
+
+        assertThrows(IllegalArgumentException.class, () -> bookService.findAllById(bookIds));
     }
 
     @Test
