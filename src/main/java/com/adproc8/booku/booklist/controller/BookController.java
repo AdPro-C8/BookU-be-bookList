@@ -81,9 +81,9 @@ class BookController {
 
         try {
             books = bookService.findAllById(dto.getBookIds());
-        } catch (IllegalArgumentException exception) {
+        } catch (RuntimeException exception) {
             logger.error(exception.getMessage(), exception);
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.ok(books);
