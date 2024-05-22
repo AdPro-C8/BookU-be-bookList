@@ -75,7 +75,7 @@ class BookController {
         return ResponseEntity.ok(book.get());
     }
 
-    @PostMapping("/get-batch")
+    @PostMapping("/get-multiple")
     ResponseEntity<List<Book>> getMultipleBooksById(@RequestBody GetBooksByIdRequestDto dto) {
         List<Book> books;
 
