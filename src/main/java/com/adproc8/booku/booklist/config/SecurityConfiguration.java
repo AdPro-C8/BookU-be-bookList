@@ -21,6 +21,7 @@ import java.util.List;
 class SecurityConfiguration {
 
     private static final String BOOK_PATTERN = "/book/**";
+    private static final String BOOK_GET_BATCH_PATH = "/book/get-batch";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -49,6 +50,8 @@ class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(customizer -> customizer
                         .requestMatchers(HttpMethod.GET, BOOK_PATTERN)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, BOOK_GET_BATCH_PATH)
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, BOOK_PATTERN)
                         .hasRole(UserRole.ADMIN.toString())
