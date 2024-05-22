@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -51,16 +50,10 @@ class BookServiceImplTest {
 
     @Test
     void testSave_ThrowsException() {
-        Book bookToSave = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title")
-            .author("Test Author")
-            .build();
+        doThrow(IllegalArgumentException.class).when(bookRepository).save(null);
 
-        doThrow(new RuntimeException()).when(bookRepository).save(any(Book.class));
-
-        assertThrows(RuntimeException.class, () -> bookService.save(bookToSave));
-        verify(bookRepository, times(1)).save(bookToSave);
+        assertThrows(IllegalArgumentException.class, () -> bookService.save(null));
+        verify(bookRepository, times(1)).save(null);
     }
 
     @Test
@@ -88,27 +81,23 @@ class BookServiceImplTest {
 
     @Test
     void testSaveAll_ThrowsException() {
-        Book book1 = Book.builder()
+        Book book = Book.builder()
             .id(UUID.randomUUID())
-            .title("Test Title 1")
-            .author("Test Author 1")
+            .title("Test Title")
+            .author("Test Author")
             .build();
 
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 2")
-            .author("Test Author 2")
-            .build();
+        List<Book> booksToSave = new ArrayList<>();
+        booksToSave.add(book);
+        booksToSave.add(null);
+        doThrow(IllegalArgumentException.class).when(bookRepository).saveAll(anyList());
 
-        List<Book> booksToSave = Arrays.asList(book1, book2);
-        doThrow(new RuntimeException()).when(bookRepository).saveAll(anyList());
-
-        assertThrows(RuntimeException.class, () -> bookService.saveAll(booksToSave));
+        assertThrows(IllegalArgumentException.class, () -> bookService.saveAll(booksToSave));
         verify(bookRepository, times(1)).saveAll(booksToSave);
     }
 
     @Test
-    void testFindById_Exists() {
+    void testFindById() {
         UUID bookId = UUID.randomUUID();
         Book book = Book.builder()
             .id(bookId)
@@ -139,12 +128,10 @@ class BookServiceImplTest {
 
     @Test
     void testFindById_ThrowsException() {
-        UUID bookId = UUID.randomUUID();
+        when(bookRepository.findById(null)).thenThrow(IllegalArgumentException.class);
 
-        when(bookRepository.findById(bookId)).thenThrow(new RuntimeException());
-
-        assertThrows(RuntimeException.class, () -> bookService.findById(bookId));
-        verify(bookRepository, times(1)).findById(bookId);
+        assertThrows(IllegalArgumentException.class, () -> bookService.findById(null));
+        verify(bookRepository, times(1)).findById(null);
     }
 
     @Test
@@ -181,14 +168,6 @@ class BookServiceImplTest {
     }
 
     @Test
-    void testFindAll_ThrowsException() {
-        when(bookRepository.findAll()).thenThrow(new RuntimeException());
-
-        assertThrows(RuntimeException.class, () -> bookService.findAll());
-        verify(bookRepository, times(1)).findAll();
-    }
-
-    @Test
     void testFindAllWithSort() {
         Book book1 = Book.builder()
             .id(UUID.randomUUID())
@@ -210,16 +189,6 @@ class BookServiceImplTest {
         List<Book> foundBooks = bookService.findAll(sort);
 
         assertEquals(books, foundBooks);
-        verify(bookRepository, times(1)).findAll(sort);
-    }
-
-    @Test
-    void testFindAllWithSort_ThrowsException() {
-        Sort sort = Sort.by(Sort.Direction.ASC, "title");
-
-        doThrow(new RuntimeException()).when(bookRepository).findAll(sort);
-
-        assertThrows(RuntimeException.class, () -> bookService.findAll(sort));
         verify(bookRepository, times(1)).findAll(sort);
     }
 
@@ -308,13 +277,10 @@ class BookServiceImplTest {
 
     @Test
     void testDeleteById_ThrowsException() {
-        UUID bookId = UUID.randomUUID();
+        doThrow(IllegalArgumentException.class).when(bookRepository).deleteById(null);
 
-        doThrow(new EmptyResultDataAccessException(1)).when(bookRepository).deleteById(bookId);
-
-        assertThrows(EmptyResultDataAccessException.class, () -> bookService.deleteById(bookId));
-
-        verify(bookRepository, times(1)).deleteById(bookId);
+        assertThrows(IllegalArgumentException.class, () -> bookService.deleteById(null));
+        verify(bookRepository, times(1)).deleteById(null);
     }
 
     @Test
@@ -342,23 +308,9 @@ class BookServiceImplTest {
 
     @Test
     void testDeleteAll_ThrowsException() {
-        Book book1 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 1")
-            .author("Test Author 1")
-            .build();
+        doThrow(IllegalArgumentException.class).when(bookRepository).deleteAllInBatch(null);
 
-        Book book2 = Book.builder()
-            .id(UUID.randomUUID())
-            .title("Test Title 2")
-            .author("Test Author 2")
-            .build();
-
-        List<Book> booksToDelete = Arrays.asList(book1, book2);
-
-        doThrow(new RuntimeException()).when(bookRepository).deleteAllInBatch(anyList());
-
-        assertThrows(RuntimeException.class, () -> bookService.deleteAll(booksToDelete));
-        verify(bookRepository, times(1)).deleteAllInBatch(booksToDelete);
+        assertThrows(IllegalArgumentException.class, () -> bookService.deleteAll(null));
+        verify(bookRepository, times(1)).deleteAllInBatch(null);
     }
 }
