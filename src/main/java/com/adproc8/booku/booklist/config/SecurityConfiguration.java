@@ -2,7 +2,6 @@ package com.adproc8.booku.booklist.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,16 +11,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.adproc8.booku.booklist.enums.UserRole;
-
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfiguration {
-
-    private static final String BOOK_PATTERN = "/book/**";
-    private static final String GET_MULTIPLE_BOOKS_PATH = "/book/get-multiple";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -49,18 +43,8 @@ class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(customizer -> customizer
-                        .requestMatchers(HttpMethod.GET, BOOK_PATTERN)
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, GET_MULTIPLE_BOOKS_PATH)
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, BOOK_PATTERN)
-                        .hasRole(UserRole.ADMIN.toString())
-                        .requestMatchers(HttpMethod.DELETE, BOOK_PATTERN)
-                        .hasRole(UserRole.ADMIN.toString())
-                        .requestMatchers(HttpMethod.PATCH, BOOK_PATTERN)
-                        .hasRole(UserRole.ADMIN.toString())
                         .anyRequest()
-                        .authenticated()
+                        .permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
