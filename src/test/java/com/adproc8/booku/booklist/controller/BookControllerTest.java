@@ -3,10 +3,11 @@ package com.adproc8.booku.booklist.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.sql.Date;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,33 +18,46 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.adproc8.booku.booklist.dto.*;
 import com.adproc8.booku.booklist.model.Book;
 import com.adproc8.booku.booklist.service.BookService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class BookControllerTest {
 
-    @Mock
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @MockBean
     private GetBooksByIdRequestDto getBooksByIdDto;
 
-    @Mock
+    @MockBean
     private PatchBookRequestDto patchBookDto;
 
-    @Mock
+    @MockBean
     private PostBookRequestDto bookDto;
 
-    @Mock
+    @MockBean
     private BookService bookService;
 
-    @InjectMocks
+    @Autowired
     private BookController bookController;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     private List<Book> dummyBooks;
 
@@ -100,31 +114,30 @@ class BookControllerTest {
     }
 
     @Test
-    void testGetBookById() {
+    void testGetBookById() throws Exception {
         UUID bookId = UUID.randomUUID();
         Book book = Book.builder().id(bookId).build();
 
         when(bookService.findById(bookId)).thenReturn(Optional.of(book));
 
-        ResponseEntity<Book> responseEntity = bookController.getBookById(bookId);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(book, responseEntity.getBody());
+        mockMvc.perform(get("/book/" + bookId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getBooksByIdDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(book.getId().toString()));
     }
 
     @Test
-    void testGetBookById_NonExistingBook() {
+    void testGetBookById_NonExistingBook() throws Exception {
         UUID bookId = UUID.randomUUID();
 
         when(bookService.findById(bookId)).thenReturn(Optional.empty());
 
-        ResponseEntity<Book> responseEntity = bookController.getBookById(bookId);
-
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        mockMvc.perform(get("/book/" + bookId)).andExpect(status().isNotFound());
     }
 
     @Test
-    void testCreateBook_Success() {
+    void testCreateBook_Success() throws Exception {
         Book newBook = Book.builder()
             .id(UUID.randomUUID())
             .title("Title")
@@ -150,14 +163,15 @@ class BookControllerTest {
 
         when(bookService.save(any(Book.class))).thenReturn(newBook);
 
-        ResponseEntity<PostBookResponseDto> responseEntity = bookController.createBook(bookDto);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(newBook.getId(), responseEntity.getBody().getBookId());
+        mockMvc.perform(post("/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bookDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bookId").value(newBook.getId().toString()));
     }
 
     @Test
-    void testCreateBook_DataIntegrityViolation() {
+    void testCreateBook_DataIntegrityViolation() throws Exception {
         when(bookDto.getTitle()).thenReturn("Title");
         when(bookDto.getAuthor()).thenReturn("Author");
         when(bookDto.getPublisher()).thenReturn("Publisher");
@@ -170,13 +184,14 @@ class BookControllerTest {
 
         when(bookService.save(any(Book.class))).thenThrow(DataIntegrityViolationException.class);
 
-        ResponseEntity<PostBookResponseDto> responseEntity = bookController.createBook(bookDto);
-
-        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        mockMvc.perform(post("/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bookDto)))
+                .andExpect(status().isConflict());
     }
 
     @Test
-    void testCreateBook_ThrowsException() {
+    void testCreateBook_ThrowsException() throws Exception {
         when(bookDto.getTitle()).thenReturn("Title");
         when(bookDto.getAuthor()).thenReturn("Author");
         when(bookDto.getPublisher()).thenReturn("Publisher");
@@ -189,13 +204,14 @@ class BookControllerTest {
 
         when(bookService.save(any(Book.class))).thenThrow(RuntimeException.class);
 
-        ResponseEntity<PostBookResponseDto> responseEntity = bookController.createBook(bookDto);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+        mockMvc.perform(post("/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bookDto)))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void testGetMultipleBooksById() {
+    void testGetMultipleBooksById() throws Exception {
         UUID bookId1 = UUID.randomUUID();
         UUID bookId2 = UUID.randomUUID();
 
@@ -212,35 +228,26 @@ class BookControllerTest {
 
         when(getBooksByIdDto.getBookIds()).thenReturn(bookIds);
 
-        ResponseEntity<List<Book>> responseEntity =
-                bookController.getMultipleBooksById(getBooksByIdDto);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        List<Book> returnedBooks = responseEntity.getBody();
-
-        assertNotNull(returnedBooks);
-        assertEquals(2, returnedBooks.size());
-
-        Iterator<Book> returnedBooksIterator = returnedBooks.iterator();
-
-        assertEquals(book1, returnedBooksIterator.next());
-        assertEquals(book2, returnedBooksIterator.next());
-        assertFalse(returnedBooksIterator.hasNext());
+        mockMvc.perform(post("/book/get-multiple")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getBooksByIdDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(bookId1.toString()))
+                .andExpect(jsonPath("$[1].id").value(bookId2.toString()));
     }
 
     @Test
-    void testGetMultipleBooksById_InvalidDto() {
+    void testGetMultipleBooksById_InvalidDto() throws Exception {
         when(getBooksByIdDto.getBookIds()).thenThrow(NullPointerException.class);
 
-        ResponseEntity<List<Book>> responseEntity = bookController
-                .getMultipleBooksById(getBooksByIdDto);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        mockMvc.perform(post("/book/get-multiple")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getBooksByIdDto)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testUpdateBookById_Success() {
+    void testUpdateBookById_Success() throws Exception {
         UUID bookId = UUID.randomUUID();
         Book book = Book.builder().id(bookId).build();
 
@@ -253,22 +260,22 @@ class BookControllerTest {
         when(patchBookDto.getPhotoUrl()).thenReturn("http://example.com/photo.jpg");
         when(patchBookDto.getCategory()).thenReturn("New Category");
 
-        ResponseEntity<Void> responseEntity = bookController.updateBookById(bookId, patchBookDto);
-
-        verify(bookService, times(1)).save(any(Book.class));
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        mockMvc.perform(patch("/book/" + bookId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getBooksByIdDto)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void testUpdateBookById_NotFound() {
+    void testUpdateBookById_NotFound() throws Exception {
         UUID bookId = UUID.randomUUID();
 
         when(bookService.findById(bookId)).thenReturn(Optional.empty());
 
-        ResponseEntity<Void> responseEntity = bookController.updateBookById(bookId, patchBookDto);
-
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        mockMvc.perform(patch("/book/" + bookId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(getBooksByIdDto)))
+                .andExpect(status().isNotFound());
     }
 
     @Test

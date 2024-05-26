@@ -1,5 +1,6 @@
 package com.adproc8.booku.booklist.repository;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -19,6 +20,12 @@ public interface BookRepository extends JpaRepository<Book, UUID>, JpaSpecificat
         public static Specification<Book> titleIs(String title) {
             return (root, query, builder) -> {
                 return builder.equal(root.get("title"), title);
+            };
+        }
+
+        public static Specification<Book> idIn(Set<UUID> ids) {
+            return (root, query, builder) -> {
+                return root.get("id").in(ids);
             };
         }
     }

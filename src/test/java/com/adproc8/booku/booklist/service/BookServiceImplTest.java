@@ -13,9 +13,11 @@ import com.adproc8.booku.booklist.repository.BookRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -262,6 +264,96 @@ class BookServiceImplTest {
         when(bookRepository.findAllById(bookIds)).thenThrow(IllegalArgumentException.class);
 
         assertThrows(IllegalArgumentException.class, () -> bookService.findAllById(bookIds));
+    }
+
+    @Test
+    void testFindAllById_NotEmpty_NotNull() {
+        UUID bookId1 = UUID.randomUUID();
+        UUID bookId2 = UUID.randomUUID();
+
+        Set<UUID> bookIds = new HashSet<>(List.of(bookId1, bookId2));
+
+        Specification<Book> spec = Specification.where(null);
+
+        Book book1 = Book.builder()
+            .id(bookId1)
+            .title("Test Title 1")
+            .author("Test Author 1")
+            .build();
+
+        Book book2 = Book.builder()
+            .id(bookId2)
+            .title("Test Title 2")
+            .author("Test Author 2")
+            .build();
+
+        List<Book> books = List.of(book1, book2);
+        when(bookRepository.findAll(spec)).thenReturn(books);
+
+        List<Book> returnedBooks = bookService.findAllById(bookIds, spec);
+
+        assertNotNull(returnedBooks);
+
+        Iterator<Book> returnedBooksIterator = returnedBooks.iterator();
+
+        assertTrue(returnedBooksIterator.hasNext());
+        assertEquals(book1, returnedBooksIterator.next());
+        assertEquals(book2, returnedBooksIterator.next());
+        assertFalse(returnedBooksIterator.hasNext());
+
+        verify(bookRepository, times(1)).findAll(spec);
+    }
+
+    @Test
+    void testFindAllById_Empty_NotNull() {
+        Set<UUID> bookIds = new HashSet<>();
+
+        Specification<Book> spec = Specification.where(null);
+
+        when(bookRepository.findAll(spec)).thenReturn(new ArrayList<>());
+
+        List<Book> returnedBooks = bookService.findAllById(bookIds, spec);
+
+        assertNotNull(returnedBooks);
+        assertTrue(returnedBooks.isEmpty());
+
+        verify(bookRepository, times(1)).findAll(spec);
+    }
+
+    @Test
+    void testFindAllById_NotEmpty_Null() {
+        UUID bookId1 = UUID.randomUUID();
+        UUID bookId2 = UUID.randomUUID();
+
+        Set<UUID> bookIds = new HashSet<>(List.of(bookId1, bookId2));
+
+        Book book1 = Book.builder()
+            .id(bookId1)
+            .title("Test Title 1")
+            .author("Test Author 1")
+            .build();
+
+        Book book2 = Book.builder()
+            .id(bookId2)
+            .title("Test Title 2")
+            .author("Test Author 2")
+            .build();
+
+        List<Book> books = List.of(book1, book2);
+        when(bookRepository.findAll(any(Specification.class))).thenReturn(books);
+
+        List<Book> returnedBooks = bookService.findAllById(bookIds, null);
+
+        assertNotNull(returnedBooks);
+
+        Iterator<Book> returnedBooksIterator = returnedBooks.iterator();
+
+        assertTrue(returnedBooksIterator.hasNext());
+        assertEquals(book1, returnedBooksIterator.next());
+        assertEquals(book2, returnedBooksIterator.next());
+        assertFalse(returnedBooksIterator.hasNext());
+
+        verify(bookRepository, times(1)).findAll(any(Specification.class));
     }
 
     @Test

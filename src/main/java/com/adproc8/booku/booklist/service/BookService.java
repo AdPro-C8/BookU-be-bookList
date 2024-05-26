@@ -2,6 +2,7 @@ package com.adproc8.booku.booklist.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,7 @@ public interface BookService {
     List<Book> findAll(Specification<Book> spec);
     List<Book> findAll(Specification<Book> spec, Sort sort);
     List<Book> findAllById(Iterable<UUID> ids);
+    List<Book> findAllById(Set<UUID> ids, Specification<Book> spec);
     void deleteById(UUID bookId);
     void deleteAll(List<Book> books);
 }
