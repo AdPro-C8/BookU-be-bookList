@@ -110,6 +110,8 @@ class BookController {
 
         Optional.ofNullable(bookDto.getPublisher())
                 .ifPresent(publisher -> book.setPublisher(publisher));
+        Optional.ofNullable(bookDto.getPrice())
+                .ifPresent(price -> book.setPrice(price));
         Optional.ofNullable(bookDto.getPublishDate())
                 .ifPresent(publishDate -> book.setPublishDate(publishDate));
         Optional.ofNullable(bookDto.getIsbn())
@@ -120,6 +122,8 @@ class BookController {
                 .ifPresent(photoUrl -> book.setPhotoUrl(photoUrl));
         Optional.ofNullable(bookDto.getCategory())
                 .ifPresent(category -> book.setCategory(category));
+        Optional.ofNullable(bookDto.getDownloadCount())
+                .ifPresent(downloadCount -> book.setDownloadCount(downloadCount));
 
         bookService.save(book);
     }
@@ -146,6 +150,8 @@ class BookController {
 
             Optional.ofNullable(bookDto.getPublisher())
                     .ifPresent(publisher -> book.setPublisher(publisher));
+            Optional.ofNullable(bookDto.getPrice())
+                    .ifPresent(price -> book.setPrice(price));
             Optional.ofNullable(bookDto.getPublishDate())
                     .ifPresent(publishDate -> book.setPublishDate(publishDate));
             Optional.ofNullable(bookDto.getIsbn())
@@ -156,6 +162,8 @@ class BookController {
                     .ifPresent(photoUrl -> book.setPhotoUrl(photoUrl));
             Optional.ofNullable(bookDto.getCategory())
                     .ifPresent(category -> book.setCategory(category));
+            Optional.ofNullable(bookDto.getDownloadCount())
+                    .ifPresent(downloadCount -> book.setDownloadCount(downloadCount));
         }
 
         bookService.saveAll(books);

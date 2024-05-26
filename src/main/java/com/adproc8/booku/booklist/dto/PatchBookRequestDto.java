@@ -15,4 +15,5 @@ public class PatchBookRequestDto {
     private int pageCount;
     private String photoUrl;
     private String category;
+    private int downloadCount;
 }
