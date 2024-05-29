@@ -56,4 +56,8 @@ public class Book {
     @Column(nullable = false)
     @Check(constraints = "download_count >= 0")
     private int downloadCount;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private float rating = 0;
 }
