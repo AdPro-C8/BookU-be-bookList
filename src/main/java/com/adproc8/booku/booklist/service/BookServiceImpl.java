@@ -87,8 +87,8 @@ class BookServiceImpl implements BookService {
             UUID bookId = dto.getBookId();
             float averageRating = dto.getAverageRating();
 
-            Book book = bookIdToBookMap.get(bookId);
-            book.setRating(averageRating);
+            Optional.ofNullable(bookIdToBookMap.get(bookId))
+                    .ifPresent(book -> book.setRating(averageRating));
         }
 
         List<Book> books = bookIdToBookMap.values()
